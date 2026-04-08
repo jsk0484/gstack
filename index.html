@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GStack — AI 개발팀을 즉시 구성하는 방법</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --accent1: #7c3aed;
+      --accent2: #2563eb;
+      --accent3: #06b6d4;
+      --text: #f1f5f9;
+      --muted: #64748b;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── GRADIENT BLOBS ─── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+      animation: drift 20s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 600px; height: 600px; background: var(--accent1); top: -200px; left: -200px; animation-delay: 0s; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); top: 40%; right: -150px; animation-delay: -7s; }
+    .blob-3 { width: 400px; height: 400px; background: var(--accent3); bottom: -100px; left: 30%; animation-delay: -14s; }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px, 60px) scale(1.1); }
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(8,8,16,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      padding: 0.5rem 1.25rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s;
+      text-decoration: none;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 1.5rem 4rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a78bfa;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: #a78bfa;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      max-width: 800px;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200%;
+      animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-primary {
+      padding: 0.875rem 2rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 40px rgba(124,58,237,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(124,58,237,0.5); }
+    .btn-ghost {
+      padding: 0.875rem 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      transition: border-color .2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); }
+
+    /* ─── STATS ─── */
+    .stats {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      background: var(--bg);
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.875rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ─── SECTION ─── */
+    section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem 1.5rem;
+    }
+    .section-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #a78bfa;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .section-sub {
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 560px;
+    }
+
+    /* ─── WORKFLOW ─── */
+    .workflow {
+      margin-top: 3rem;
+      display: grid;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .workflow-step {
+      background: var(--bg);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+      padding: 1.75rem 2rem;
+      transition: background .2s;
+    }
+    .workflow-step:hover { background: rgba(255,255,255,0.03); }
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-content h3 { font-size: 1rem; font-weight: 700; }
+    .step-content p  { color: var(--muted); font-size: 0.875rem; margin-top: 0.25rem; }
+
+    /* ─── SKILLS GRID ─── */
+    .skills-grid {
+      margin-top: 3rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      transition: border-color .2s, transform .2s;
+    }
+    .skill-card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-2px); }
+    .skill-cat {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .skill-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .skill-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .skill-cmd {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #a78bfa;
+      background: rgba(124,58,237,0.1);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+    .skill-desc { color: var(--muted); font-size: 0.8rem; }
+
+    /* ─── COMPARE TABLE ─── */
+    .compare-wrap {
+      margin-top: 3rem;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .check { color: #34d399; }
+    .cross { color: #f87171; }
+
+    /* ─── TERMINAL ─── */
+    .terminal {
+      margin-top: 3rem;
+      background: #0d0d17;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.25rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .terminal-body { padding: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; }
+    .t-prompt { color: #a78bfa; }
+    .t-cmd    { color: #e2e8f0; }
+    .t-out    { color: var(--muted); }
+    .t-ok     { color: #34d399; }
+    .t-cursor { display: inline-block; width: 8px; height: 1em; background: #a78bfa; animation: blink 1s step-end infinite; vertical-align: middle; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    footer a { color: #a78bfa; text-decoration: none; }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <nav>
+    <span class="nav-logo">GStack</span>
+    <ul class="nav-links">
+      <li><a href="#workflow">워크플로우</a></li>
+      <li><a href="#skills">스킬</a></li>
+      <li><a href="#compare">비교</a></li>
+    </ul>
+    <a href="https://github.com/garrytan/gstack" class="nav-cta" target="_blank">GitHub ↗</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge"><span class="badge-dot"></span>By Garry Tan · Y Combinator</div>
+    <h1>혼자서도 <span class="gradient">AI 개발팀</span>처럼 개발하는 방법</h1>
+    <p class="hero-sub">GStack은 Claude Code를 CEO, Staff Engineer, QA, 보안 전문가로 분리해 전문적인 소프트웨어 개발 흐름을 만드는 오픈소스 워크플로우 프레임워크입니다.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/garrytan/gstack" class="btn-primary" target="_blank">지금 시작하기</a>
+      <a href="#workflow" class="btn-ghost">워크플로우 보기</a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat reveal">
+      <div class="stat-num">600K+</div>
+      <div class="stat-label">60일 프로덕션 코드 라인</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">100</div>
+      <div class="stat-label">주당 PR 처리 수</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">10K★</div>
+      <div class="stat-label">GitHub 공개 48시간 내</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">23+</div>
+      <div class="stat-label">전문 스킬 슬래시 커맨드</div>
+    </div>
+  </div>
+
+  <!-- WORKFLOW -->
+  <section id="workflow">
+    <div class="reveal">
+      <span class="section-tag">워크플로우</span>
+      <h2 class="section-title">개발 7단계 프로세스</h2>
+      <p class="section-sub">즉흥적인 AI 코딩이 아닌, 검증된 소프트웨어 개발 방법론을 AI에 적용합니다.</p>
+    </div>
+    <div class="workflow reveal">
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(167,139,250,0.15);color:#a78bfa">01</div>
+        <div class="step-content">
+          <h3>Think — 문제 검증</h3>
+          <p>정말 풀어야 할 문제인지 먼저 검증한다.</p>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(96,165,250,0.15);color:#60a5fa">02</div>
+        <div class="step-content">
+          <h3>Plan — 비전 · 아키텍처 확정</h3>
+          <p>제품 방향과 기술 아키텍처를 고정한다. 이후 변경 없음.</p>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(52,211,153,0.15);color:#34d399">03</div>
+        <div class="step-content">
+          <h3>Build — 구현</h3>
+          <p>확정된 플랜만 보고 코드를 작성한다.</p>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(251,191,36,0.15);color:#fbbf24">04</div>
+        <div class="step-content">
+          <h3>Review — Staff Engineer 감사</h3>
+          <p>프로덕션 기준으로 코드 품질과 보안을 점검한다.</p>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(248,113,113,0.15);color:#f87171">05</div>
+        <div class="step-content">
+          <h3>Test — QA · 성능</h3>
+          <p>브라우저 자동화 포함 체계적 테스트를 실행한다.</p>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(6,182,212,0.15);color:#06b6d4">06</div>
+        <div class="step-content">
+          <h3>Ship — 자동화 배포</h3>
+          <p>카나리 배포부터 릴리즈 노트까지 자동으로 처리한다.</p>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-num" style="background:rgba(167,139,250,0.15);color:#a78bfa">07</div>
+        <div class="step-content">
+          <h3>Reflect — 회고</h3>
+          <p>팀 회고와 문서화로 다음 사이클을 개선한다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="reveal">
+      <span class="section-tag">스킬</span>
+      <h2 class="section-title">역할별 전문 커맨드</h2>
+      <p class="section-sub">각 슬래시 커맨드가 Claude를 해당 분야 전문가로 전환합니다.</p>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <div class="skill-cat" style="color:#a78bfa">기획 · 설계</div>
+        <ul class="skill-list">
+          <li><span class="skill-cmd">/plan-ceo-review</span><span class="skill-desc">제품 레벨 사고</span></li>
+          <li><span class="skill-cmd">/plan-eng-review</span><span class="skill-desc">아키텍처 설계</span></li>
+          <li><span class="skill-cmd">/autoplan</span><span class="skill-desc">자동 계획 수립</span></li>
+          <li><span class="skill-cmd">/plan-design-review</span><span class="skill-desc">디자인 리뷰</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color:#60a5fa">개발</div>
+        <ul class="skill-list">
+          <li><span class="skill-cmd">/investigate</span><span class="skill-desc">코드베이스 조사</span></li>
+          <li><span class="skill-cmd">/design-html</span><span class="skill-desc">HTML/CSS 구현</span></li>
+          <li><span class="skill-cmd">/pair-agent</span><span class="skill-desc">페어 프로그래밍</span></li>
+          <li><span class="skill-cmd">/learn</span><span class="skill-desc">코드 학습 보조</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color:#34d399">품질 보증</div>
+        <ul class="skill-list">
+          <li><span class="skill-cmd">/review</span><span class="skill-desc">Staff Engineer 감사</span></li>
+          <li><span class="skill-cmd">/qa</span><span class="skill-desc">브라우저 자동화 테스트</span></li>
+          <li><span class="skill-cmd">/qa-only</span><span class="skill-desc">테스트만 실행</span></li>
+          <li><span class="skill-cmd">/cso</span><span class="skill-desc">보안 리뷰</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color:#06b6d4">배포 · 릴리즈</div>
+        <ul class="skill-list">
+          <li><span class="skill-cmd">/ship</span><span class="skill-desc">릴리즈 관리</span></li>
+          <li><span class="skill-cmd">/land-and-deploy</span><span class="skill-desc">배포 자동화</span></li>
+          <li><span class="skill-cmd">/canary</span><span class="skill-desc">카나리 배포</span></li>
+          <li><span class="skill-cmd">/benchmark</span><span class="skill-desc">성능 측정</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color:#f87171">안전 장치</div>
+        <ul class="skill-list">
+          <li><span class="skill-cmd">/careful</span><span class="skill-desc">위험 작업 전 검토</span></li>
+          <li><span class="skill-cmd">/freeze</span><span class="skill-desc">코드 변경 동결</span></li>
+          <li><span class="skill-cmd">/guard</span><span class="skill-desc">보호 모드</span></li>
+          <li><span class="skill-cmd">/retro</span><span class="skill-desc">팀 회고</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color:#fbbf24">유틸리티</div>
+        <ul class="skill-list">
+          <li><span class="skill-cmd">/browse</span><span class="skill-desc">브라우저 자동화</span></li>
+          <li><span class="skill-cmd">/codex</span><span class="skill-desc">코드 지식베이스</span></li>
+          <li><span class="skill-cmd">/gstack-upgrade</span><span class="skill-desc">GStack 업그레이드</span></li>
+          <li><span class="skill-cmd">/office-hours</span><span class="skill-desc">비동기 Q&A</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section id="compare">
+    <div class="reveal">
+      <span class="section-tag">비교</span>
+      <h2 class="section-title">일반 AI 코딩 vs GStack</h2>
+    </div>
+    <div class="compare-wrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>일반 AI 코딩</th>
+            <th>GStack</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>역할 분리</td><td class="cross">✕ 단일 제너럴리스트</td><td class="check">✓ 전문가 역할 자동 전환</td></tr>
+          <tr><td>품질 검증</td><td class="cross">✕ 즉흥적</td><td class="check">✓ 단계별 리뷰 프로세스</td></tr>
+          <tr><td>배포 자동화</td><td class="cross">✕ 수동</td><td class="check">✓ 카나리 포함 파이프라인</td></tr>
+          <tr><td>안전 장치</td><td class="cross">✕ 없음</td><td class="check">✓ freeze/guard 메커니즘</td></tr>
+          <tr><td>보안 리뷰</td><td class="cross">✕ 없음</td><td class="check">✓ CSO 역할 자동화</td></tr>
+          <tr><td>브라우저 자동화</td><td class="cross">✕ 없음</td><td class="check">✓ 100~200ms Chromium 데몬</td></tr>
+          <tr><td>병렬 프로젝트</td><td class="cross">✕ 1개</td><td class="check">✓ 10~15개 동시 관리</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TERMINAL -->
+  <section>
+    <div class="reveal">
+      <span class="section-tag">시작하기</span>
+      <h2 class="section-title">설치는 3분이면 충분합니다</h2>
+    </div>
+    <div class="terminal reveal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span style="margin-left:.5rem;font-size:.8rem;color:var(--muted)">bash</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">~ $</span> <span class="t-cmd">git clone https://github.com/garrytan/gstack</span></div>
+        <div class="t-out">Cloning into 'gstack'...</div>
+        <div><span class="t-prompt">~ $</span> <span class="t-cmd">cp -r gstack/.claude/* ~/.claude/</span></div>
+        <div class="t-out">스킬 파일 복사 완료</div>
+        <div><span class="t-prompt">~ $</span> <span class="t-cmd">claude code .</span></div>
+        <div class="t-ok">✓ GStack 스킬 23개 로드 완료</div>
+        <div><span class="t-prompt">~ $</span> <span class="t-cmd">/autoplan</span></div>
+        <div class="t-out">CEO · Engineer · Designer 역할로 분석 중...</div>
+        <div><span class="t-prompt">~ $</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>GStack by <a href="https://github.com/garrytan" target="_blank">Garry Tan</a> · MIT License · <a href="https://github.com/garrytan/gstack" target="_blank">GitHub</a></p>
+    <p style="margin-top:.5rem;font-size:.75rem">이 페이지는 GStack 정보 정리 목적으로 제작되었습니다.</p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const els = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    els.forEach(el => obs.observe(el));
+
+    // Counter animation
+    function animateCount(el, target, suffix = '') {
+      let start = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        start += step;
+        if(start >= target) { el.textContent = target + suffix; clearInterval(timer); return; }
+        el.textContent = Math.floor(start) + suffix;
+      }, 16);
+    }
+    const statsObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(!e.isIntersecting) return;
+        const nums = e.target.querySelectorAll('.stat-num');
+        nums[0] && animateCount(nums[0], 600, 'K+');
+        nums[1] && animateCount(nums[1], 100, '');
+        nums[2] && (nums[2].textContent = '10K★');
+        nums[3] && animateCount(nums[3], 23, '+');
+        statsObs.unobserve(e.target);
+      });
+    }, { threshold: 0.5 });
+    statsObs.observe(document.querySelector('.stats'));
+  </script>
+</body>
+</html>
