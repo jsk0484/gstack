@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GStack App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@property --hue {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+@property --hue2 {
+  syntax: '<number>';
+  initial-value: 120;
+  inherits: false;
+}
+@property --hue3 {
+  syntax: '<number>';
+  initial-value: 240;
+  inherits: false;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080810;
+  --surface: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --accent1: #7c3aed;
+  --accent2: #2563eb;
+  --accent3: #06b6d4;
+  --text: #f1f5f9;
+  --muted: #64748b;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+@keyframes hueShift {
+  from { --hue: 0; --hue2: 120; --hue3: 240; }
+  to   { --hue: 360; --hue2: 480; --hue3: 600; }
+}
+
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  animation: hueShift 12s linear infinite;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, hsl(var(--hue), 70%, 20%) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 60%, hsl(var(--hue2), 65%, 18%) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 40% at 50% 90%, hsl(var(--hue3), 60%, 15%) 0%, transparent 60%),
+    var(--bg);
+  filter: blur(40px);
+}
+
+.aurora::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, var(--bg) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hero-badge span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent3);
+  box-shadow: 0 0 8px var(--accent3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent1), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 480px;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff;
+  box-shadow: 0 0 20px rgba(124,58,237,0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(124,58,237,0.4);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ── Main ── */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent3);
+  margin-bottom: 0.75rem;
+}
+
+.section-label::before {
+  content: '';
+  display: block;
+  width: 20px; height: 1px;
+  background: var(--accent3);
+}
+
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.section-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ── Prompt Builder ── */
+#builder { margin-bottom: 6rem; }
+
+.builder-grid {
+  display: grid;
+  grid-template-areas:
+    "input input"
+    "tabs output";
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .builder-grid {
+    grid-template-areas:
+      "input"
+      "tabs"
+      "output";
+    grid-template-columns: 1fr;
+  }
+}
+
+.builder-input-area {
+  grid-area: input;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.15s;
+  transform-style: preserve-3d;
+}
+
+.glass-card:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.input-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+}
+
+textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: 0.85rem 1rem;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: var(--accent1);
+  background: rgba(124,58,237,0.04);
+}
+
+textarea::placeholder { color: var(--muted); }
+
+.builder-tabs { grid-area: tabs; }
+
+.tab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.tab-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.tab-btn.active {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.tab-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.tab-icon.ceo { background: rgba(124,58,237,0.2); }
+.tab-icon.eng { background: rgba(37,99,235,0.2); }
+.tab-icon.des { background: rgba(6,182,212,0.2); }
+.tab-icon.qa  { background: rgba(16,185,129,0.2); }
+
+.tab-meta { display: flex; flex-direction: column; }
+.tab-meta small { font-size: 0.72rem; color: var(--muted); font-weight: 400; }
+
+.builder-output { grid-area: output; display: flex; flex-direction: column; gap: 1rem; }
+
+.output-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.output-role {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.role-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+.role-dot.ceo { background: var(--accent1); box-shadow: 0 0 8px var(--accent1); }
+.role-dot.eng { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+.role-dot.des { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+.role-dot.qa  { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+.output-text {
+  flex: 1;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  max-height: 300px;
+  min-height: 160px;
+}
+
+.output-text.placeholder-text { color: var(--muted); font-style: italic; font-family: inherit; }
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+.copy-btn.copied { color: #10b981; border-color: #10b981; }
+
+/* ── Workflow Tracker ── */
+#tracker {}
+
+.progress-bar-wrap {
+  margin-bottom: 2rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.progress-count { color: var(--text); font-weight: 600; }
+.progress-pct { color: var(--muted); }
+
+.progress-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--accent1), var(--accent3));
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: 0%;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.workflow-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 600px;
+
+  /* scroll-driven animation */
+  animation: cardReveal 0.5s ease forwards;
+  animation-timeline: view();
+  animation-range: entry 10% entry 40%;
+}
+
+@supports not (animation-timeline: view()) {
+  .workflow-card {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .workflow-card {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.workflow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.02));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.workflow-card:hover::before { opacity: 1; }
+
+.workflow-card.done {
+  background: rgba(124,58,237,0.08);
+  border-color: rgba(124,58,237,0.3);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.step-num {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.step-check {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+
+.workflow-card.done .step-check {
+  background: var(--accent1);
+  border-color: var(--accent1);
+  color: #fff;
+}
+
+.step-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.step-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.workflow-card.done .step-title {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.step-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+footer a { color: var(--accent3); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 100px; }
+
+/* ── Spin ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span aria-hidden="true"></span>AI-Powered Workflow</div>
+    <h1>GStack <em>App</em></h1>
+    <p>프로젝트를 입력하면 AI 역할별 프롬프트를 자동 생성하고, 7단계 워크플로우로 개발을 추적합니다.</p>
+    <div class="hero-actions">
+      <a href="#builder" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        프롬프트 빌더 시작
+      </a>
+      <a href="index.html" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        홈으로
+      </a>
+    </div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    스크롤
+  </div>
+</section>
+
+<!-- Main -->
+<main>
+
+  <!-- Prompt Builder -->
+  <section id="builder">
+    <div class="section-label">Prompt Builder</div>
+    <h2>AI 역할별 프롬프트 생성</h2>
+    <p class="section-desc">프로젝트를 설명하면 CEO, Engineer, Designer, QA 관점의 프롬프트를 만들어 드립니다.</p>
+
+    <div class="builder-grid">
+      <!-- Input -->
+      <div class="builder-input-area">
+        <div class="glass-card">
+          <label class="input-label" for="projectInput">프로젝트 설명</label>
+          <textarea id="projectInput" rows="5" placeholder="예: 사용자 인증이 있는 SaaS 대시보드를 만들고 싶어"></textarea>
+        </div>
+        <button class="btn btn-primary" id="generateBtn" style="width:100%;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          프롬프트 생성
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="builder-tabs glass-card" style="padding: 1rem;">
+        <div class="tab-list" role="tablist" aria-label="AI 역할 선택">
+          <button class="tab-btn active" data-role="ceo" role="tab" aria-selected="true" aria-controls="outputText">
+            <div class="tab-icon ceo" aria-hidden="true">👔</div>
+            <div class="tab-meta">
+              <span>CEO</span>
+              <small>제품 기획 · 전략</small>
+            </div>
+          </button>
+          <button class="tab-btn" data-role="engineer" role="tab" aria-selected="false" aria-controls="outputText">
+            <div class="tab-icon eng" aria-hidden="true">⚙️</div>
+            <div class="tab-meta">
+              <span>Engineer</span>
+              <small>기술 아키텍처</small>
+            </div>
+          </button>
+          <button class="tab-btn" data-role="designer" role="tab" aria-selected="false" aria-controls="outputText">
+            <div class="tab-icon des" aria-hidden="true">🎨</div>
+            <div class="tab-meta">
+              <span>Designer</span>
+              <small>디자인 시스템</small>
+            </div>
+          </button>
+          <button class="tab-btn" data-role="qa" role="tab" aria-selected="false" aria-controls="outputText">
+            <div class="tab-icon qa" aria-hidden="true">🔍</div>
+            <div class="tab-meta">
+              <span>QA</span>
+              <small>테스트 계획</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="builder-output">
+        <div class="glass-card output-card">
+          <div class="output-header">
+            <div class="output-role">
+              <div class="role-dot ceo" id="roleDot"></div>
+              <span id="roleLabel">CEO 프롬프트</span>
+            </div>
+            <button class="copy-btn" id="copyBtn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              복사
+            </button>
+          </div>
+          <div class="output-text placeholder-text" id="outputText">역할 탭을 선택하고 "프롬프트 생성"을 클릭하세요.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow Tracker -->
+  <section id="tracker">
+    <div class="section-label">Workflow Tracker</div>
+    <h2>7단계 개발 워크플로우</h2>
+    <p class="section-desc">각 단계를 클릭해 완료 처리하세요. 진행 상태는 자동 저장됩니다.</p>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-info">
+        <span class="progress-count"><span id="doneCount">0</span> / 7 완료</span>
+        <span class="progress-pct" id="donePct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="workflow-grid" id="workflowGrid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p>GStack App · <a href="index.html">홈으로 돌아가기</a></p>
+</footer>
+
+<script>
+/* ── Prompt Templates ── */
+const TEMPLATES = {
+  ceo: (p) =>
+`당신은 YC 수준의 프로덕트 CEO입니다. 아래 프로젝트를 위한 제품 기획서를 작성하세요.
+
+프로젝트: ${p}
+
+다음 항목을 포함해 작성하세요:
+1) 핵심 가치 제안 (Why this, Why now)
+2) 타겟 유저 (페르소나 + 페인포인트)
+3) MVP 기능 3개 (우선순위 순)
+4) 성공 지표 (정량 KPI 3개)
+
+간결하고 투자자에게 설득력 있는 언어로 작성하세요.`,
+
+  engineer: (p) =>
+`당신은 Staff Engineer입니다. 아래 프로젝트의 기술 아키텍처를 설계하세요.
+
+프로젝트: ${p}
+
+다음 항목을 포함해 작성하세요:
+1) 기술 스택 선택과 이유 (각 선택의 트레이드오프 포함)
+2) 데이터 모델 (핵심 엔티티 3-5개)
+3) API 구조 (RESTful 또는 GraphQL, 주요 엔드포인트)
+4) 잠재적 기술 부채와 마이그레이션 전략
+
+확장성과 유지보수성을 중심으로 작성하세요.`,
+
+  designer: (p) =>
+`당신은 Senior UI/UX 디자이너입니다. 아래 프로젝트의 디자인 시스템을 정의하세요.
+
+프로젝트: ${p}
+
+다음 항목을 포함해 작성하세요:
+1) 컬러 팔레트 (Primary, Secondary, Semantic 색상)
+2) 컴포넌트 목록 (Atomic Design 기준 Atom → Molecule → Organism)
+3) 주요 화면 흐름 (온보딩 → 핵심 기능 → 전환 단계)
+4) 접근성 고려사항 (WCAG 2.1 AA 기준)
+
+사용자 감정 여정을 고려해 작성하세요.`,
+
+  qa: (p) =>
+`당신은 QA Lead입니다. 아래 프로젝트의 테스트 계획을 수립하세요.
+
+프로젝트: ${p}
+
+다음 항목을 포함해 작성하세요:
+1) 크리티컬 테스트 케이스 5개 (Given/When/Then 형식)
+2) 엣지 케이스 (경계값, 예외 상황 3가지)
+3) 성능 기준 (응답시간, 동시 사용자, 가용성 SLA)
+4) 회귀 테스트 항목 (배포 전 체크리스트)
+
+릴리스 자신감을 높이는 관점에서 작성하세요.`
+};
+
+const ROLE_LABELS = {
+  ceo: 'CEO 프롬프트',
+  engineer: 'Engineer 프롬프트',
+  designer: 'Designer 프롬프트',
+  qa: 'QA 프롬프트'
+};
+
+const ROLE_DOT_CLASSES = {
+  ceo: 'ceo', engineer: 'eng', designer: 'des', qa: 'qa'
+};
+
+let activeRole = 'ceo';
+let generatedPrompts = {};
+
+/* Tabs */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    activeRole = btn.dataset.role;
+    updateOutput();
+  });
+});
+
+function updateOutput() {
+  const roleDot = document.getElementById('roleDot');
+  const roleLabel = document.getElementById('roleLabel');
+  const outputText = document.getElementById('outputText');
+
+  roleDot.className = 'role-dot ' + ROLE_DOT_CLASSES[activeRole];
+  roleLabel.textContent = ROLE_LABELS[activeRole];
+
+  if (generatedPrompts[activeRole]) {
+    outputText.textContent = generatedPrompts[activeRole];
+    outputText.classList.remove('placeholder-text');
+  } else {
+    outputText.textContent = '역할 탭을 선택하고 "프롬프트 생성"을 클릭하세요.';
+    outputText.classList.add('placeholder-text');
+  }
+}
+
+/* Generate */
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const project = document.getElementById('projectInput').value.trim();
+  if (!project) {
+    document.getElementById('projectInput').focus();
+    document.getElementById('projectInput').style.borderColor = 'var(--accent1)';
+    setTimeout(() => { document.getElementById('projectInput').style.borderColor = ''; }, 1500);
+    return;
+  }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> 생성 중...';
+
+  setTimeout(() => {
+    generatedPrompts.ceo = TEMPLATES.ceo(project);
+    generatedPrompts.engineer = TEMPLATES.engineer(project);
+    generatedPrompts.designer = TEMPLATES.designer(project);
+    generatedPrompts.qa = TEMPLATES.qa(project);
+    updateOutput();
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 프롬프트 생성';
+  }, 600);
+});
+
+/* Copy */
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const text = document.getElementById('outputText').textContent;
+  if (!text || document.getElementById('outputText').classList.contains('placeholder-text')) return;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 복사';
+    }, 2000);
+  } catch {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '복사 실패';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 복사';
+    }, 2000);
+  }
+});
+
+/* ── Workflow Tracker ── */
+const STEPS = [
+  { id: 'think',   icon: '💡', title: 'Think',   desc: '문제 정의와 목표 설정. 무엇을 왜 만드는지 명확히 합니다.' },
+  { id: 'plan',    icon: '📐', title: 'Plan',    desc: '기능 범위 확정, 마일스톤 수립, 리소스 배분.' },
+  { id: 'build',   icon: '🔨', title: 'Build',   desc: '실제 코드 작성. AI와 함께 빠르게 프로토타입을 구현합니다.' },
+  { id: 'review',  icon: '👁️',  title: 'Review',  desc: '코드 리뷰, 디자인 피드백, 이해관계자 검토.' },
+  { id: 'test',    icon: '🧪', title: 'Test',    desc: '유닛/통합/E2E 테스트, QA 체크리스트 완료.' },
+  { id: 'ship',    icon: '🚀', title: 'Ship',    desc: '배포 파이프라인 실행, 릴리스 노트 작성, 론칭.' },
+  { id: 'reflect', icon: '🔁', title: 'Reflect', desc: '회고, 지표 분석, 다음 이터레이션 방향 결정.' }
+];
+
+let stepStates = JSON.parse(localStorage.getItem('gstack-workflow') || '{}');
+
+function renderWorkflow() {
+  const grid = document.getElementById('workflowGrid');
+  grid.innerHTML = '';
+
+  STEPS.forEach((step, i) => {
+    const done = !!stepStates[step.id];
+    const card = document.createElement('div');
+    card.className = 'workflow-card' + (done ? ' done' : '');
+    card.dataset.id = step.id;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-pressed', done ? 'true' : 'false');
+    card.setAttribute('aria-label', `${step.title}: ${done ? '완료됨' : '미완료'}`);
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="step-num">0${i + 1}</span>
+        <div class="step-check" aria-hidden="true">${done ? '✓' : ''}</div>
+      </div>
+      <span class="step-icon" aria-hidden="true">${step.icon}</span>
+      <div class="step-title">${step.title}</div>
+      <div class="step-desc">${step.desc}</div>
+    `;
+    card.addEventListener('click', () => toggleStep(step.id));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(step.id); }
+    });
+    grid.appendChild(card);
+  });
+
+  // 3D tilt
+  document.querySelectorAll('.workflow-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rx = ((y / rect.height) - 0.5) * -12;
+      const ry = ((x / rect.width) - 0.5) * 12;
+      card.style.transform = `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(4px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+
+  updateProgress();
+}
+
+function toggleStep(id) {
+  if (stepStates[id]) {
+    delete stepStates[id];
+  } else {
+    stepStates[id] = true;
+  }
+  localStorage.setItem('gstack-workflow', JSON.stringify(stepStates));
+  renderWorkflow();
+}
+
+function updateProgress() {
+  const done = Object.values(stepStates).filter(Boolean).length;
+  const pct = Math.round((done / 7) * 100);
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('donePct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+renderWorkflow();
+
+</script>
+</body>
+</html>
