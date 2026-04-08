@@ -560,25 +560,15 @@
   </footer>
 
   <script>
-    // ─── DATA LOADING ────────────────────────────────────────────────
-    let SERVICES = [];
-
-    async function loadData() {
-      try {
-        const resp = await fetch('./data.json?v=' + Date.now());
-        SERVICES = await resp.json();
-      } catch {
-        // Fallback inline data if fetch fails (e.g. local file:// open)
-        SERVICES = [
-      { name: 'ChatGPT', icon: '💬', company: 'OpenAI', date: '2022.11', year: 2022, category: 'LLM', desc: '대화형 AI의 대중화. 출시 5일 만에 100만 사용자.', impact: 5 },
-      { name: 'Stable Diffusion', icon: '🎨', company: 'Stability AI', date: '2022.08', year: 2022, category: '이미지', desc: '오픈소스 이미지 생성 모델.', impact: 5 },
-      { name: 'GitHub Copilot', icon: '🤖', company: 'GitHub / OpenAI', date: '2022.06', year: 2022, category: '코딩', desc: 'AI 페어 프로그래밍 도구.', impact: 5 },
-      { name: 'GPT-4', icon: '🧠', company: 'OpenAI', date: '2023.03', year: 2023, category: 'LLM', desc: '멀티모달 LLM.', impact: 5 },
-      { name: 'Claude Sonnet 4.6', icon: '🔮', company: 'Anthropic', date: '2026.04', year: 2026, category: 'LLM', desc: '현재 이 페이지를 만든 모델.', impact: 5 },
-        ];
-      }
-      statTotal.textContent = SERVICES.length;
-
+    // ─── SERVICE DATA ───────────────────────────────────────────────
+    const SERVICES = [
+      // 2022
+      { name: 'ChatGPT', icon: '💬', company: 'OpenAI', date: '2022.11', year: 2022, category: 'LLM', desc: '대화형 AI의 대중화. 출시 5일 만에 100만 사용자. 인터넷이 발명된 이후 가장 빠른 소비자 기술 채택 속도.', impact: 5 },
+      { name: 'Stable Diffusion', icon: '🎨', company: 'Stability AI', date: '2022.08', year: 2022, category: '이미지', desc: '오픈소스 이미지 생성 모델. 누구나 로컬에서 실행 가능. 이미지 생성 AI의 민주화를 이끌었다.', impact: 5 },
+      { name: 'DALL-E 2', icon: '🖼️', company: 'OpenAI', date: '2022.04', year: 2022, category: '이미지', desc: '텍스트로 고품질 이미지 생성. 창작 AI의 상용화 시대를 열었다.', impact: 4 },
+      { name: 'Midjourney v1', icon: '🌌', company: 'Midjourney', date: '2022.07', year: 2022, category: '이미지', desc: 'Discord 기반 이미지 생성 서비스. 예술적 스타일로 크리에이터 커뮤니티를 사로잡았다.', impact: 4 },
+      { name: 'GitHub Copilot', icon: '🤖', company: 'GitHub / OpenAI', date: '2022.06', year: 2022, category: '코딩', desc: 'AI 페어 프로그래밍 도구. 코드 자동완성을 넘어 함수 전체를 생성. 개발자 생산성 패러다임 전환.', impact: 5 },
+      { name: 'Whisper', icon: '🎙️', company: 'OpenAI', date: '2022.09', year: 2022, category: '음성', desc: '다국어 자동 음성인식(ASR) 오픈소스 모델. 98개 언어 지원, 전사 품질 혁신.', impact: 4 },
       // 2023
       { name: 'GPT-4', icon: '🧠', company: 'OpenAI', date: '2023.03', year: 2023, category: 'LLM', desc: '멀티모달 LLM. 이미지 이해 + 텍스트 생성. BAR 시험 상위 10% 수준. 실질적 추론 능력의 도약.', impact: 5 },
       { name: 'Claude 1', icon: '🔮', company: 'Anthropic', date: '2023.03', year: 2023, category: 'LLM', desc: '헌법 기반 AI(Constitutional AI) 최초 상용 적용. 안전성을 핵심 가치로 내세운 LLM.', impact: 4 },
@@ -587,28 +577,25 @@
       { name: 'Llama 1', icon: '🦙', company: 'Meta', date: '2023.02', year: 2023, category: 'LLM', desc: '오픈소스 LLM의 시작. 연구자와 개발자에게 모델 가중치 공개. 커뮤니티 생태계의 폭발적 성장.', impact: 4 },
       { name: 'Runway Gen-2', icon: '🎬', company: 'Runway', date: '2023.06', year: 2023, category: '영상', desc: '텍스트/이미지로 영상 생성. AI 영상 제작의 실용적 시작점.', impact: 4 },
       { name: 'Auto-GPT', icon: '🤖', company: '오픈소스', date: '2023.04', year: 2023, category: '에이전트', desc: 'LLM을 자율 에이전트로 실행. 목표를 주면 스스로 작업을 분해하고 실행. AI 에이전트 트렌드의 시작.', impact: 4 },
-
       // 2024
-      { name: 'GPT-4o', icon: '⚡', company: 'OpenAI', date: '2024.05', year: 2024, category: 'LLM', desc: '"omni" 모델. 텍스트·이미지·오디오 실시간 처리. 속도 2배, 비용 50% 절감. 멀티모달의 실용화.', impact: 5 },
+      { name: 'GPT-4o', icon: '⚡', company: 'OpenAI', date: '2024.05', year: 2024, category: 'LLM', desc: 'omni 모델. 텍스트·이미지·오디오 실시간 처리. 속도 2배, 비용 50% 절감. 멀티모달의 실용화.', impact: 5 },
       { name: 'Claude 3 Opus', icon: '🔮', company: 'Anthropic', date: '2024.03', year: 2024, category: 'LLM', desc: 'GPT-4를 넘는 벤치마크. Claude 3 패밀리 중 최상위. 복잡한 추론에서 새로운 기준 제시.', impact: 5 },
       { name: 'Sora', icon: '🎬', company: 'OpenAI', date: '2024.02', year: 2024, category: '영상', desc: '60초 고화질 영상 생성. 물리 법칙을 이해하는 세계 모델. 영화 산업 충격파.', impact: 5 },
       { name: 'Gemini 1.5 Pro', icon: '💎', company: 'Google', date: '2024.02', year: 2024, category: 'LLM', desc: '100만 토큰 컨텍스트 윈도우. 책 한 권 분량을 한 번에 처리. 장문 이해의 게임 체인저.', impact: 4 },
       { name: 'Llama 3', icon: '🦙', company: 'Meta', date: '2024.04', year: 2024, category: 'LLM', desc: '8B/70B 파라미터 오픈소스 모델. GPT-3.5 수준을 오픈소스로. 로컬 LLM 시대 가속.', impact: 4 },
-      { name: 'Cursor', icon: '💻', company: 'Anysphere', date: '2024.01', year: 2024, category: '코딩', desc: 'AI-first 코드 에디터. Codebase 전체를 컨텍스트로 활용. "진짜 AI 코딩 도구"의 기준 제시.', impact: 5 },
+      { name: 'Cursor', icon: '💻', company: 'Anysphere', date: '2024.01', year: 2024, category: '코딩', desc: 'AI-first 코드 에디터. Codebase 전체를 컨텍스트로 활용. 진짜 AI 코딩 도구의 기준 제시.', impact: 5 },
       { name: 'Grok', icon: '🤖', company: 'xAI', date: '2024.01', year: 2024, category: 'LLM', desc: 'Elon Musk의 xAI가 만든 LLM. 실시간 X(트위터) 데이터 접근. 유머와 직설적 응답 스타일.', impact: 3 },
       { name: 'Kling', icon: '🎬', company: 'Kuaishou', date: '2024.06', year: 2024, category: '영상', desc: '중국발 영상 생성 AI. 물리 시뮬레이션 품질로 Sora와 경쟁. 글로벌 AI 경쟁 구도 재편.', impact: 3 },
       { name: 'ElevenLabs', icon: '🎙️', company: 'ElevenLabs', date: '2024.01', year: 2024, category: '음성', desc: '극도로 자연스러운 AI 음성 합성. 감정·억양·스타일 세밀 조정. 팟캐스트·오디오북 제작 혁신.', impact: 4 },
-
       // 2025
       { name: 'Claude 3.5 Sonnet', icon: '🔮', company: 'Anthropic', date: '2025.01', year: 2025, category: 'LLM', desc: 'Artifacts 기능으로 실시간 코드 실행·렌더링. 비전 능력 대폭 강화. 코딩 에이전트 분야 1위.', impact: 5 },
       { name: 'GPT-4o mini', icon: '⚡', company: 'OpenAI', date: '2025.01', year: 2025, category: 'LLM', desc: '소형 고효율 모델. 비용 60배 저렴, 품질은 GPT-3.5 이상. AI 대중화의 가격 장벽 붕괴.', impact: 4 },
-      { name: 'o1', icon: '🧮', company: 'OpenAI', date: '2025.01', year: 2025, category: 'LLM', desc: '"생각하는" AI. chain-of-thought 추론. 수학·코딩·과학 문제에서 인간 전문가 수준 도달.', impact: 5 },
+      { name: 'o1', icon: '🧮', company: 'OpenAI', date: '2025.01', year: 2025, category: 'LLM', desc: '생각하는 AI. chain-of-thought 추론. 수학·코딩·과학 문제에서 인간 전문가 수준 도달.', impact: 5 },
       { name: 'Gemini 2.0 Flash', icon: '💎', company: 'Google', date: '2025.02', year: 2025, category: 'LLM', desc: '멀티모달 에이전트용 모델. 실시간 화면 이해 + 작업 수행. Gemini의 속도/비용 최적화 버전.', impact: 4 },
       { name: 'Veo', icon: '🎬', company: 'Google', date: '2025.05', year: 2025, category: '영상', desc: '1080p 고해상도 영상 생성. 영화 감독 스타일 제어 가능. YouTube 통합.', impact: 4 },
       { name: 'Windsurf', icon: '🏄', company: 'Codeium', date: '2025.01', year: 2025, category: '코딩', desc: 'AI-native IDE. Cascade 에이전트로 멀티파일 동시 편집. Cursor의 강력한 경쟁자.', impact: 4 },
-      { name: 'Perplexity Pro', icon: '🔍', company: 'Perplexity AI', date: '2025.01', year: 2025, category: '검색', desc: 'AI 답변 + 실시간 검색 + 출처 인용. "Google의 미래"라는 평가와 함께 급성장.', impact: 4 },
+      { name: 'Perplexity Pro', icon: '🔍', company: 'Perplexity AI', date: '2025.01', year: 2025, category: '검색', desc: 'AI 답변 + 실시간 검색 + 출처 인용. Google의 미래라는 평가와 함께 급성장.', impact: 4 },
       { name: 'Deep Research', icon: '🔍', company: 'OpenAI', date: '2025.02', year: 2025, category: '검색', desc: '수십 개 웹사이트를 읽고 리서치 리포트 작성. 전문 리서처 수준의 조사 능력.', impact: 4 },
-
       // 2026
       { name: 'Claude Sonnet 4.6', icon: '🔮', company: 'Anthropic', date: '2026.04', year: 2026, category: 'LLM', desc: '현재 이 페이지를 만든 모델. 코딩·분석·지시 이행 전 분야 최강. 에이전트 작업의 새 기준.', impact: 5 },
       { name: 'GPT-5', icon: '⚡', company: 'OpenAI', date: '2026.01', year: 2026, category: 'LLM', desc: 'reasoning 기능 기본 내장. o1 수준 추론을 플래그십 모델에 통합. 전략적 사고와 창의성 도약.', impact: 5 },
@@ -621,6 +608,7 @@
     const timeline = document.getElementById('timeline');
     const noResults = document.getElementById('no-results');
     const statTotal = document.getElementById('stat-total');
+    statTotal.textContent = SERVICES.length;
 
     function starsHtml(n) {
       return '★'.repeat(n) + '☆'.repeat(5 - n);
@@ -629,22 +617,15 @@
     function renderTimeline(activeFilter) {
       timeline.innerHTML = '';
       const years = [2022, 2023, 2024, 2025, 2026];
-
       let totalVisible = 0;
 
       years.forEach(year => {
         const yearServices = SERVICES.filter(s => s.year === year);
-        const visibleServices = activeFilter === 'all'
-          ? yearServices
-          : yearServices.filter(s => s.category === activeFilter);
-
         if (yearServices.length === 0) return;
 
         const section = document.createElement('div');
         section.className = 'year-section';
-        section.dataset.year = year;
 
-        // Year header
         const header = document.createElement('div');
         header.className = 'year-header';
         header.innerHTML = `
@@ -654,62 +635,37 @@
         `;
         section.appendChild(header);
 
-        // Cards grid
         const grid = document.createElement('div');
         grid.className = 'cards-grid';
-
         const line = document.createElement('div');
         line.className = 'timeline-line';
 
-        // Build left and right arrays with nulls for alternation
-        const leftSlots = [];
-        const rightSlots = [];
+        const leftSlots = [], rightSlots = [];
         yearServices.forEach((svc, i) => {
-          if (i % 2 === 0) {
-            leftSlots.push(svc);
-            rightSlots.push(null);
-          } else {
-            leftSlots.push(null);
-            rightSlots.push(svc);
-          }
+          if (i % 2 === 0) { leftSlots.push(svc); rightSlots.push(null); }
+          else { leftSlots.push(null); rightSlots.push(svc); }
         });
 
+        const leftCol = document.createElement('div');
+        const rightCol = document.createElement('div');
         const rows = leftSlots.length;
 
-        // Build left column
-        const leftCol = document.createElement('div');
         for (let i = 0; i < rows; i++) {
-          const svc = leftSlots[i];
-          const slot = document.createElement('div');
-          if (!svc) {
-            slot.className = 'card-slot empty';
-            slot.innerHTML = '<div class="card" style="visibility:hidden"></div>';
-          } else {
-            slot.className = 'card-slot';
-            const isFiltered = activeFilter !== 'all' && svc.category !== activeFilter;
-            const card = buildCard(svc, isFiltered);
-            slot.appendChild(card);
-            if (!isFiltered) totalVisible++;
-          }
-          leftCol.appendChild(slot);
-        }
-
-        // Build right column
-        const rightCol = document.createElement('div');
-        for (let i = 0; i < rows; i++) {
-          const svc = rightSlots[i];
-          const slot = document.createElement('div');
-          if (!svc) {
-            slot.className = 'card-slot right empty';
-            slot.innerHTML = '<div class="card" style="visibility:hidden"></div>';
-          } else {
-            slot.className = 'card-slot right';
-            const isFiltered = activeFilter !== 'all' && svc.category !== activeFilter;
-            const card = buildCard(svc, isFiltered);
-            slot.appendChild(card);
-            if (!isFiltered) totalVisible++;
-          }
-          rightCol.appendChild(slot);
+          const buildSlot = (svc, isRight) => {
+            const slot = document.createElement('div');
+            if (!svc) {
+              slot.className = 'card-slot' + (isRight ? ' right' : '') + ' empty';
+              slot.innerHTML = '<div class="card" style="visibility:hidden"></div>';
+            } else {
+              slot.className = 'card-slot' + (isRight ? ' right' : '');
+              const isFiltered = activeFilter !== 'all' && svc.category !== activeFilter;
+              slot.appendChild(buildCard(svc, isFiltered));
+              if (!isFiltered) totalVisible++;
+            }
+            return slot;
+          };
+          leftCol.appendChild(buildSlot(leftSlots[i], false));
+          rightCol.appendChild(buildSlot(rightSlots[i], true));
         }
 
         grid.appendChild(leftCol);
@@ -721,18 +677,11 @@
 
       noResults.classList.toggle('visible', totalVisible === 0);
 
-      // IntersectionObserver fallback
       if (!CSS.supports('animation-timeline', 'view()')) {
-        const cards = timeline.querySelectorAll('.card');
         const observer = new IntersectionObserver((entries) => {
-          entries.forEach(e => {
-            if (e.isIntersecting) {
-              e.target.classList.add('visible');
-              observer.unobserve(e.target);
-            }
-          });
+          entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
         }, { threshold: 0.1 });
-        cards.forEach(c => {
+        timeline.querySelectorAll('.card').forEach(c => {
           if (!c.classList.contains('dimmed')) observer.observe(c);
           else c.classList.add('visible');
         });
@@ -761,12 +710,7 @@
       return card;
     }
 
-      renderTimeline('all');
-    }
-
-    // ─── FILTER LOGIC ────────────────────────────────────────────────
     let activeFilter = 'all';
-
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -776,8 +720,7 @@
       });
     });
 
-    // Bootstrap
-    loadData();
+    renderTimeline('all');
   </script>
 </body>
 </html>
